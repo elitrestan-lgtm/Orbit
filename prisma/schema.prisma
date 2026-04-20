@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Contact {
+  id              String        @id @default(cuid())
+  name            String
+  email           String?
+  phone           String?
+  company         String?
+  role            String?
+  linkedinUrl     String?
+  relationship    String        @default("peer")
+  warmth          Int           @default(3)
+  notes           String?
+  lastContactedAt DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  interactions    Interaction[]
+
+  @@index([relationship])
+  @@index([lastContactedAt])
+}
+
+model Interaction {
+  id         String   @id @default(cuid())
+  contactId  String
+  contact    Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  kind       String
+  note       String?
+  occurredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  @@index([contactId, occurredAt])
+}
+
+model NudgeSetting {
+  id           String @id @default(cuid())
+  relationship String @unique
+  daysWindow   Int
+}
+
+model Integration {
+  id        String   @id @default(cuid())
+  provider  String   @unique
+  status    String   @default("disconnected")
+  config    String?
+  updatedAt DateTime @updatedAt @default(now())
+}
