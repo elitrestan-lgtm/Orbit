@@ -18,6 +18,7 @@ interface Props {
   onEdit: () => void;
   onDelete: () => void;
   onLogInteraction: (kind: InteractionKind, note?: string) => void;
+  onDeleteInteraction: (interactionId: string) => void;
   onUpdateNotes: (notes: string) => void;
 }
 
@@ -27,6 +28,7 @@ export default function ContactDetail({
   onEdit,
   onDelete,
   onLogInteraction,
+  onDeleteInteraction,
   onUpdateNotes,
 }: Props) {
   const nudge = nudgeFor(contact.lastContactedAt, contact.relationship, nudgeWindows);
@@ -190,7 +192,7 @@ export default function ContactDetail({
                 {contact.interactions.map((it) => (
                   <li
                     key={it.id}
-                    className="flex items-start gap-2 rounded-md border border-orbit-border/60 bg-orbit-panel p-2"
+                    className="group flex items-start gap-2 rounded-md border border-orbit-border/60 bg-orbit-panel p-2"
                   >
                     <span className="text-lg">
                       {INTERACTION_ICONS[it.kind as InteractionKind] ?? "•"}
@@ -200,9 +202,18 @@ export default function ContactDetail({
                         <span className="text-slate-200">
                           {INTERACTION_LABELS[it.kind as InteractionKind] ?? it.kind}
                         </span>
-                        <span className="text-xs text-slate-500">
-                          {formatDate(it.occurredAt)}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-slate-500">
+                            {formatDate(it.occurredAt)}
+                          </span>
+                          <button
+                            className="hidden rounded p-0.5 text-slate-600 transition hover:bg-red-500/10 hover:text-red-400 group-hover:block"
+                            title="Delete this entry"
+                            onClick={() => onDeleteInteraction(it.id)}
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </div>
                       {it.note && (
                         <div className="mt-1 text-xs text-slate-400">{it.note}</div>

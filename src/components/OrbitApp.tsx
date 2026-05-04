@@ -113,6 +113,15 @@ export default function OrbitApp({
     setContacts((prev) => prev.map((c) => (c.id === saved.id ? saved : c)));
   }
 
+  async function deleteInteraction(contactId: string, interactionId: string) {
+    const res = await fetch(`/api/contacts/${contactId}/interactions/${interactionId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) return;
+    const saved = (await res.json()) as Contact;
+    setContacts((prev) => prev.map((c) => (c.id === saved.id ? saved : c)));
+  }
+
   async function updateNotes(contactId: string, notes: string) {
     await saveContact({ id: contactId, notes });
   }
@@ -229,6 +238,9 @@ export default function OrbitApp({
               onDelete={() => deleteContact(selected.id)}
               onLogInteraction={(kind, note) =>
                 logInteraction(selected.id, kind, note)
+              }
+              onDeleteInteraction={(interactionId) =>
+                deleteInteraction(selected.id, interactionId)
               }
               onUpdateNotes={(notes) => updateNotes(selected.id, notes)}
             />
