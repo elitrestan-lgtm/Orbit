@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   INTERACTION_ICONS,
   INTERACTION_KINDS,
@@ -103,6 +104,12 @@ export default function ContactDetail({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Link
+            href={`/dashboard/contacts/${contact.id}`}
+            className="btn"
+          >
+            Full profile
+          </Link>
           <button className="btn" onClick={onEdit}>
             Edit
           </button>
@@ -181,7 +188,15 @@ export default function ContactDetail({
 
       <div className="grid min-h-0 flex-1 gap-4 p-4 md:grid-cols-2">
         <div className="card flex min-h-0 flex-col bg-orbit-bg/50 p-3">
-          <div className="label mb-2">Timeline</div>
+          <div className="mb-2 flex items-center justify-between">
+            <div className="label">Recent interactions</div>
+            <Link
+              href={`/dashboard/contacts/${contact.id}`}
+              className="text-xs text-slate-500 transition hover:text-white"
+            >
+              View full timeline →
+            </Link>
+          </div>
           <div className="flex-1 overflow-y-auto">
             {contact.interactions.length === 0 ? (
               <div className="py-8 text-center text-sm text-slate-500">
