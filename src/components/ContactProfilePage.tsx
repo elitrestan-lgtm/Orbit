@@ -9,6 +9,7 @@ import {
   type InteractionKind,
 } from "@/lib/constants";
 import { nudgeFor } from "@/lib/nudge";
+import { computeWarmth } from "@/lib/warmth";
 import type { Contact, Interaction, NudgeWindows } from "@/lib/types";
 import WarmthBadge from "./WarmthBadge";
 
@@ -66,7 +67,10 @@ export default function ContactProfilePage({ contact: initial, nudgeWindows }: P
               <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs capitalize text-slate-300">
                 {RELATIONSHIP_LABELS[contact.relationship as keyof typeof RELATIONSHIP_LABELS] ?? contact.relationship}
               </span>
-              <WarmthBadge warmth={contact.warmth} />
+              <WarmthBadge
+                warmth={computeWarmth(contact.warmth, contact.lastContactedAt, contact.createdAt)}
+                baseWarmth={contact.warmth}
+              />
             </div>
             <div className="mt-1 text-slate-400">
               {[contact.role, contact.company].filter(Boolean).join(" · ") || "No title"}

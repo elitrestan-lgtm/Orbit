@@ -2,6 +2,7 @@
 
 import { RELATIONSHIPS, RELATIONSHIP_LABELS } from "@/lib/constants";
 import { nudgeFor } from "@/lib/nudge";
+import { computeWarmth } from "@/lib/warmth";
 import type { Contact, NudgeWindows } from "@/lib/types";
 import WarmthBadge from "./WarmthBadge";
 
@@ -81,7 +82,11 @@ export default function ContactList({
                     <div className="truncate text-sm font-medium text-white">
                       {c.name}
                     </div>
-                    <WarmthBadge warmth={c.warmth} compact />
+                    <WarmthBadge
+                    warmth={computeWarmth(c.warmth, c.lastContactedAt, c.createdAt)}
+                    baseWarmth={c.warmth}
+                    compact
+                  />
                   </div>
                   <div className="flex items-center justify-between gap-2">
                     <div className="truncate text-xs text-slate-400">

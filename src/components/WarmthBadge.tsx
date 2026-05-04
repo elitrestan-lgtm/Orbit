@@ -2,15 +2,21 @@
 
 interface Props {
   warmth: number;
+  baseWarmth?: number;
   compact?: boolean;
 }
 
-export default function WarmthBadge({ warmth, compact = false }: Props) {
+export default function WarmthBadge({ warmth, baseWarmth, compact = false }: Props) {
   const clamped = Math.max(1, Math.min(5, warmth));
   const dots = Array.from({ length: 5 }, (_, i) => i < clamped);
+  const decayed = baseWarmth !== undefined && baseWarmth > clamped;
+  const title = decayed
+    ? `Warmth ${clamped}/5 (decayed from ${baseWarmth} — log a connection to restore)`
+    : `Warmth ${clamped}/5`;
+
   if (compact) {
     return (
-      <span className="flex items-center gap-0.5" title={`Warmth ${clamped}/5`}>
+      <span className="flex items-center gap-0.5" title={title}>
         {dots.map((on, i) => (
           <span
             key={i}
@@ -20,11 +26,16 @@ export default function WarmthBadge({ warmth, compact = false }: Props) {
             }
           />
         ))}
+        {decayed && <span className="ml-0.5 text-[9px] text-slate-500">↓</span>}
       </span>
     );
   }
+
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-orbit-border bg-orbit-bg px-2 py-0.5 text-xs text-slate-300">
+    <span
+      className="inline-flex items-center gap-1 rounded-full border border-orbit-border bg-orbit-bg px-2 py-0.5 text-xs text-slate-300"
+      title={title}
+    >
       Warmth
       <span className="flex items-center gap-0.5">
         {dots.map((on, i) => (
@@ -36,7 +47,9 @@ export default function WarmthBadge({ warmth, compact = false }: Props) {
           />
         ))}
       </span>
-      <span className="tabular-nums text-slate-400">{clamped}/5</span>
+      <span className="tabular-nums text-slate-400">
+        {clamped}/5{decayed && <span className="ml-0.5 text-slate-500">↓</span>}
+      </span>
     </span>
   );
 }

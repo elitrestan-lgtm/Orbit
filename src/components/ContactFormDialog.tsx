@@ -137,7 +137,7 @@ export default function ContactFormDialog({ contact, onSave, onClose }: Props) {
               placeholder="https://linkedin.com/in/..."
             />
           </Field>
-          <Field label={`Warmth (${form.warmth ?? 3}/5)`} span={2}>
+          <Field label={`Base warmth (${form.warmth ?? 3}/5) — decays 1pt per 30 days inactive`} span={2}>
             <input
               type="range"
               min={1}
