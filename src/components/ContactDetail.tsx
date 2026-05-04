@@ -13,6 +13,7 @@ import { nudgeFor } from "@/lib/nudge";
 import { computeWarmth } from "@/lib/warmth";
 import type { Contact, NudgeWindows } from "@/lib/types";
 import WarmthBadge from "./WarmthBadge";
+import MessageSuggestions from "./MessageSuggestions";
 
 interface Props {
   contact: Contact;
@@ -190,7 +191,7 @@ export default function ContactDetail({
         </div>
       </div>
 
-      <div className="grid min-h-0 flex-1 gap-4 p-4 md:grid-cols-2">
+      <div className="grid min-h-0 flex-1 gap-4 p-4 md:grid-cols-2" style={{ gridTemplateRows: "1fr auto" }}>
         <div className="card flex min-h-0 flex-col bg-orbit-bg/50 p-3">
           <div className="mb-2 flex items-center justify-between">
             <div className="label">Recent interactions</div>
@@ -262,6 +263,13 @@ export default function ContactDetail({
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             onBlur={saveNotes}
+          />
+        </div>
+
+        <div className="md:col-span-2">
+          <MessageSuggestions
+            contactId={contact.id}
+            contactName={contact.name}
           />
         </div>
       </div>
