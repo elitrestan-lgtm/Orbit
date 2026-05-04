@@ -28,11 +28,14 @@ export default function MessageSuggestions({ contactId, contactName }: Props) {
       const res = await fetch(`/api/contacts/${contactId}/suggest`, {
         method: "POST",
       });
-      if (!res.ok) {
-        const data = await res.json() as { error?: string };
-        throw new Error(data.error ?? "Failed to generate messages");
+      const data = await res.json().catch(() => ({ error: "Server error" })) as
+        | { templates: MessageTemplate[] }
+        | { error: string };
+      if (!res.ok || "error" in data) {
+        throw new Error(
+          "error" in data ? data.error : "Failed to generate messages",
+        );
       }
-      const data = await res.json() as { templates: MessageTemplate[] };
       setTemplates(data.templates);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

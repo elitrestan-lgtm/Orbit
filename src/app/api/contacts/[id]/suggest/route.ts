@@ -18,40 +18,41 @@ export async function POST(
   _req: Request,
   { params }: { params: { id: string } },
 ) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY is not configured" },
-      { status: 500 },
-    );
-  }
+  try {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return NextResponse.json(
+        { error: "ANTHROPIC_API_KEY is not configured" },
+        { status: 500 },
+      );
+    }
 
-  const contact = await prisma.contact.findUnique({
-    where: { id: params.id },
-    include: { interactions: { orderBy: { occurredAt: "desc" }, take: 5 } },
-  });
+    const contact = await prisma.contact.findUnique({
+      where: { id: params.id },
+      include: { interactions: { orderBy: { occurredAt: "desc" }, take: 5 } },
+    });
 
-  if (!contact) {
-    return NextResponse.json({ error: "Contact not found" }, { status: 404 });
-  }
+    if (!contact) {
+      return NextResponse.json({ error: "Contact not found" }, { status: 404 });
+    }
 
-  const interactionSummary =
-    contact.interactions.length === 0
-      ? "No previous interactions logged."
-      : contact.interactions
-          .map((it) => {
-            const label =
-              INTERACTION_LABELS[it.kind as keyof typeof INTERACTION_LABELS] ??
-              it.kind;
-            const date = new Date(it.occurredAt).toLocaleDateString(undefined, {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            });
-            return `- ${label} on ${date}${it.note ? `: "${it.note}"` : ""}`;
-          })
-          .join("\n");
+    const interactionSummary =
+      contact.interactions.length === 0
+        ? "No previous interactions logged."
+        : contact.interactions
+            .map((it) => {
+              const label =
+                INTERACTION_LABELS[it.kind as keyof typeof INTERACTION_LABELS] ??
+                it.kind;
+              const date = new Date(it.occurredAt).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              });
+              return `- ${label} on ${date}${it.note ? `: "${it.note}"` : ""}`;
+            })
+            .join("\n");
 
-  const prompt = `You are helping someone reconnect with a professional contact. Generate 3 warm, personal outreach message templates.
+    const prompt = `You are helping someone reconnect with a professional contact. Generate 3 warm, personal outreach message templates.
 
 Contact details:
 - Name: ${contact.name}
@@ -77,25 +78,38 @@ Respond with valid JSON only, matching this exact structure:
   ]
 }`;
 
-  const message = await client.messages.create({
-    model: "claude-haiku-4-5",
-    max_tokens: 1024,
-    messages: [{ role: "user", content: prompt }],
-  });
+    const message = await client.messages.create({
+      model: "claude-haiku-4-5",
+      max_tokens: 2048,
+      messages: [{ role: "user", content: prompt }],
+    });
 
-  const raw =
-    message.content[0].type === "text" ? message.content[0].text : "";
+    const raw =
+      message.content[0].type === "text" ? message.content[0].text.trim() : "";
 
-  let templates: MessageTemplate[];
-  try {
-    const parsed = JSON.parse(raw) as { templates: MessageTemplate[] };
-    templates = parsed.templates;
-  } catch {
-    return NextResponse.json(
-      { error: "Failed to parse Claude response" },
-      { status: 500 },
-    );
+    // Extract JSON even if Claude wraps it in a code block
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return NextResponse.json(
+        { error: "Claude did not return valid JSON" },
+        { status: 500 },
+      );
+    }
+
+    let templates: MessageTemplate[];
+    try {
+      const parsed = JSON.parse(jsonMatch[0]) as { templates: MessageTemplate[] };
+      templates = parsed.templates;
+    } catch {
+      return NextResponse.json(
+        { error: "Failed to parse Claude response" },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json({ templates });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unexpected error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  return NextResponse.json({ templates });
 }
