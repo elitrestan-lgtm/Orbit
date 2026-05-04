@@ -144,54 +144,38 @@ export default function OrbitApp({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b border-orbit-border bg-orbit-panel/60 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+      <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-orbit-bg/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-orbit-accent to-orbit-accent2 text-lg">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-base shadow-lg shadow-indigo-950/50">
               🪐
             </div>
             <div>
-              <div className="text-sm font-semibold text-white">Orbit</div>
-              <div className="text-xs text-slate-400">
-                Keep your professional network warm
+              <div className="text-sm font-semibold tracking-tight text-white">Orbit</div>
+              <div className="text-[11px] text-slate-500">
+                Keep your network warm
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             {profile && (
-              <span className="hidden text-sm text-slate-400 sm:inline">
-                Hi, {profile.name} 👋
+              <span className="hidden rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-xs text-slate-400 sm:inline">
+                {profile.name}
               </span>
             )}
-            <span className="chip">
-              <span
-                className={
-                  integrations.gmail === "connected"
-                    ? "h-1.5 w-1.5 rounded-full bg-emerald-400"
-                    : "h-1.5 w-1.5 rounded-full bg-slate-500"
-                }
-              />
-              Gmail
-            </span>
-            <span className="chip">
-              <span
-                className={
-                  integrations.linkedin === "connected"
-                    ? "h-1.5 w-1.5 rounded-full bg-emerald-400"
-                    : "h-1.5 w-1.5 rounded-full bg-slate-500"
-                }
-              />
-              LinkedIn
-            </span>
+            <div className="hidden items-center gap-1.5 sm:flex">
+              <StatusPill label="Gmail" connected={integrations.gmail === "connected"} />
+              <StatusPill label="LinkedIn" connected={integrations.linkedin === "connected"} />
+            </div>
+            <div className="h-4 w-px bg-white/[0.08]" />
             <button
-              className="btn-ghost"
+              className="btn-ghost text-xs"
               onClick={() => setShowProfile((s) => !s)}
-              title={showProfile ? "Hide profile panel" : "Show profile panel"}
             >
-              {showProfile ? "Hide panel" : "Show panel"}
+              {showProfile ? "Hide panel" : "Settings"}
             </button>
-            <button className="btn-primary" onClick={() => setCreating(true)}>
+            <button className="btn-primary text-xs" onClick={() => setCreating(true)}>
               + New contact
             </button>
           </div>
@@ -199,22 +183,23 @@ export default function OrbitApp({
       </header>
 
       {overdue.length > 0 && (
-        <div className="border-b border-orbit-border bg-orbit-warm/10 px-4 py-2 text-sm text-orbit-warm">
+        <div className="border-b border-orange-500/20 bg-orange-500/[0.07] px-5 py-2">
           <div className="mx-auto flex max-w-7xl items-center justify-between">
-            <div>
-              ⚠️ {overdue.length} {overdue.length === 1 ? "contact is" : "contacts are"} overdue for a check-in.
+            <div className="flex items-center gap-2 text-sm text-orange-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-orange-400" />
+              {overdue.length} {overdue.length === 1 ? "contact" : "contacts"} overdue for a check-in
             </div>
             <button
-              className="btn-ghost text-orbit-warm hover:text-white"
+              className="text-xs text-orange-400 transition hover:text-orange-200"
               onClick={() => setSelectedId(overdue[0].id)}
             >
-              Jump to first →
+              View first →
             </button>
           </div>
         </div>
       )}
 
-      <main className="mx-auto flex w-full max-w-7xl flex-1 gap-4 px-4 py-4">
+      <main className="mx-auto flex w-full max-w-7xl flex-1 gap-4 px-5 py-4">
         <aside className="w-80 shrink-0">
           <ContactList
             contacts={filtered}
@@ -279,16 +264,29 @@ export default function OrbitApp({
 
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
-    <div className="card flex h-full flex-col items-center justify-center gap-3 p-10 text-center">
-      <div className="text-4xl">🛰️</div>
-      <div className="text-lg font-medium text-white">No contact selected</div>
-      <p className="max-w-sm text-sm text-slate-400">
-        Pick someone from the list, or add a new person to your orbit.
-      </p>
+    <div className="card flex h-full flex-col items-center justify-center gap-4 p-10 text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500/20 to-violet-600/20 text-3xl ring-1 ring-inset ring-white/10">
+        🛰️
+      </div>
+      <div>
+        <div className="text-base font-semibold text-white">No contact selected</div>
+        <p className="mt-1 max-w-xs text-sm text-slate-500">
+          Pick someone from the list, or add a new person to your orbit.
+        </p>
+      </div>
       <button className="btn-primary" onClick={onCreate}>
         + New contact
       </button>
     </div>
+  );
+}
+
+function StatusPill({ label, connected }: { label: string; connected: boolean }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.07] bg-white/[0.03] px-2.5 py-0.5 text-[11px] text-slate-400">
+      <span className={`h-1.5 w-1.5 rounded-full ${connected ? "bg-emerald-400" : "bg-slate-600"}`} />
+      {label}
+    </span>
   );
 }
 

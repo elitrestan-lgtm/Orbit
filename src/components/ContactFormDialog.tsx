@@ -60,19 +60,19 @@ export default function ContactFormDialog({ contact, onSave, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <form
-        className="card w-full max-w-lg p-5"
+        className="w-full max-w-lg rounded-2xl border border-white/[0.08] bg-orbit-panel p-6 shadow-2xl shadow-black/60"
         onClick={(e) => e.stopPropagation()}
         onSubmit={handleSubmit}
       >
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-white">
+        <div className="mb-5 flex items-center justify-between">
+          <h3 className="text-base font-semibold text-white">
             {contact ? "Edit contact" : "New contact"}
           </h3>
-          <button type="button" className="btn-ghost" onClick={onClose}>
+          <button type="button" className="btn-ghost h-7 w-7 p-0 text-slate-500" onClick={onClose}>
             ✕
           </button>
         </div>
@@ -157,7 +157,7 @@ export default function ContactFormDialog({ contact, onSave, onClose }: Props) {
           </Field>
         </div>
 
-        <div className="mt-5 flex justify-end gap-2">
+        <div className="mt-6 flex justify-end gap-2">
           <button type="button" className="btn" onClick={onClose}>
             Cancel
           </button>

@@ -6,10 +6,12 @@ const config: Config = {
     extend: {
       colors: {
         orbit: {
-          bg: "#0b1020",
-          panel: "#121831",
-          border: "#1f2a48",
-          muted: "#94a3b8",
+          bg: "#0c1120",
+          surface: "#111827",
+          panel: "#141d2f",
+          card: "#192236",
+          border: "#1e2d45",
+          muted: "#64748b",
           accent: "#6366f1",
           accent2: "#22d3ee",
           warm: "#f97316",
@@ -17,7 +19,11 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "-apple-system", "sans-serif"],
+      },
+      boxShadow: {
+        "glow-sm": "0 0 12px -3px rgba(99,102,241,0.25)",
+        "glow": "0 0 24px -6px rgba(99,102,241,0.35)",
       },
     },
   },

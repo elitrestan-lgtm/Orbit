@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "Orbit — professional network tracker",
@@ -14,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-orbit-bg font-sans antialiased">
+      <body className={`${inter.variable} min-h-screen bg-orbit-bg font-sans antialiased`}>
         {children}
       </body>
     </html>
