@@ -30,6 +30,7 @@ export const INTERACTION_KINDS = [
   "emailed",
   "phone_call",
   "met_up",
+  "other",
 ] as const;
 
 export type InteractionKind = (typeof INTERACTION_KINDS)[number];
@@ -40,6 +41,7 @@ export const INTERACTION_LABELS: Record<InteractionKind, string> = {
   emailed: "Emailed",
   phone_call: "Phone call",
   met_up: "Met up",
+  other: "Other",
 };
 
 export const INTERACTION_ICONS: Record<InteractionKind, string> = {
@@ -48,4 +50,5 @@ export const INTERACTION_ICONS: Record<InteractionKind, string> = {
   emailed: "✉️",
   phone_call: "📞",
   met_up: "🤝",
+  other: "📝",
 };

@@ -30,14 +30,28 @@ export default function ContactDetail({
   onUpdateNotes,
 }: Props) {
   const nudge = nudgeFor(contact.lastContactedAt, contact.relationship, nudgeWindows);
+  const [selectedKind, setSelectedKind] = useState<InteractionKind | null>(null);
   const [noteInput, setNoteInput] = useState("");
   const [notes, setNotes] = useState(contact.notes ?? "");
   const [savingNotes, setSavingNotes] = useState(false);
 
   useEffect(() => {
     setNotes(contact.notes ?? "");
+    setSelectedKind(null);
     setNoteInput("");
   }, [contact.id, contact.notes]);
+
+  function handleSelectKind(kind: InteractionKind) {
+    setSelectedKind((prev) => (prev === kind ? null : kind));
+    if (kind !== selectedKind) setNoteInput("");
+  }
+
+  function handleLog() {
+    if (!selectedKind) return;
+    onLogInteraction(selectedKind, noteInput.trim() || undefined);
+    setSelectedKind(null);
+    setNoteInput("");
+  }
 
   async function saveNotes() {
     if (notes === (contact.notes ?? "")) return;
@@ -107,8 +121,12 @@ export default function ContactDetail({
             {INTERACTION_KINDS.map((kind) => (
               <button
                 key={kind}
-                className="btn"
-                onClick={() => onLogInteraction(kind, noteInput || undefined)}
+                className={`btn transition-all ${
+                  selectedKind === kind
+                    ? "border-orbit-accent bg-orbit-accent/20 text-white"
+                    : ""
+                }`}
+                onClick={() => handleSelectKind(kind)}
                 title={`Log ${INTERACTION_LABELS[kind]}`}
               >
                 <span>{INTERACTION_ICONS[kind]}</span>
@@ -116,12 +134,46 @@ export default function ContactDetail({
               </button>
             ))}
           </div>
-          <input
-            className="input mt-2"
-            placeholder="Optional note for this interaction..."
-            value={noteInput}
-            onChange={(e) => setNoteInput(e.target.value)}
-          />
+
+          {selectedKind && (
+            <div className="mt-3 space-y-2 rounded-md border border-orbit-accent/30 bg-orbit-accent/5 p-3">
+              <div className="text-xs text-slate-400">
+                {selectedKind === "other"
+                  ? "Describe the interaction"
+                  : `Note about this ${INTERACTION_LABELS[selectedKind].toLowerCase()}`}
+                {selectedKind !== "other" && (
+                  <span className="ml-1 text-slate-500">(optional)</span>
+                )}
+              </div>
+              <textarea
+                className="input resize-none"
+                rows={2}
+                placeholder={
+                  selectedKind === "other"
+                    ? "What happened? e.g. introduced me to someone, shared an article..."
+                    : "Any context worth remembering..."
+                }
+                value={noteInput}
+                onChange={(e) => setNoteInput(e.target.value)}
+                autoFocus
+              />
+              <div className="flex items-center justify-between gap-2">
+                <button
+                  className="btn-ghost text-xs"
+                  onClick={() => { setSelectedKind(null); setNoteInput(""); }}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn-primary text-xs"
+                  onClick={handleLog}
+                  disabled={selectedKind === "other" && !noteInput.trim()}
+                >
+                  Log {INTERACTION_ICONS[selectedKind]} {INTERACTION_LABELS[selectedKind]}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   INTERACTION_ICONS,
   INTERACTION_KINDS,
@@ -29,6 +29,12 @@ export default function OrbitApp({
   const [contacts, setContacts] = useState<Contact[]>(initialContacts);
   const [nudgeWindows, setNudgeWindows] = useState<NudgeWindows>(initialNudgeWindows);
   const [integrations, setIntegrations] = useState<IntegrationStatus>(initialIntegrations);
+  const [profile, setProfile] = useState<{ name: string; email: string } | null>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("orbit_profile");
+    if (stored) setProfile(JSON.parse(stored));
+  }, []);
 
   const [selectedId, setSelectedId] = useState<string | null>(
     initialContacts[0]?.id ?? null,
@@ -144,6 +150,11 @@ export default function OrbitApp({
           </div>
 
           <div className="flex items-center gap-2">
+            {profile && (
+              <span className="hidden text-sm text-slate-400 sm:inline">
+                Hi, {profile.name} 👋
+              </span>
+            )}
             <span className="chip">
               <span
                 className={
