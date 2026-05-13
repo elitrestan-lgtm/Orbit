@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   INTERACTION_ICONS,
@@ -18,6 +18,7 @@ import MessageSuggestions from "./MessageSuggestions";
 interface Props {
   contact: Contact;
   nudgeWindows: NudgeWindows;
+  labels: Record<string, string>;
   onEdit: () => void;
   onDelete: () => void;
   onLogInteraction: (kind: InteractionKind, note?: string) => void;
@@ -28,6 +29,7 @@ interface Props {
 export default function ContactDetail({
   contact,
   nudgeWindows,
+  labels,
   onEdit,
   onDelete,
   onLogInteraction,
@@ -38,13 +40,26 @@ export default function ContactDetail({
   const [selectedKind, setSelectedKind] = useState<InteractionKind | null>(null);
   const [noteInput, setNoteInput] = useState("");
   const [notes, setNotes] = useState(contact.notes ?? "");
-  const [savingNotes, setSavingNotes] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setNotes(contact.notes ?? "");
     setSelectedKind(null);
     setNoteInput("");
+    setSaveStatus("idle");
   }, [contact.id, contact.notes]);
+
+  function handleNotesChange(value: string) {
+    setNotes(value);
+    setSaveStatus("saving");
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      await onUpdateNotes(value);
+      setSaveStatus("saved");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    }, 800);
+  }
 
   function handleSelectKind(kind: InteractionKind) {
     setSelectedKind((prev) => (prev === kind ? null : kind));
@@ -58,13 +73,6 @@ export default function ContactDetail({
     setNoteInput("");
   }
 
-  async function saveNotes() {
-    if (notes === (contact.notes ?? "")) return;
-    setSavingNotes(true);
-    await onUpdateNotes(notes);
-    setSavingNotes(false);
-  }
-
   return (
     <div className="card flex h-full flex-col overflow-hidden">
       <div className="flex items-start justify-between gap-3 border-b border-orbit-border p-4">
@@ -74,8 +82,7 @@ export default function ContactDetail({
               {contact.name}
             </h2>
             <span className="chip capitalize">
-              {RELATIONSHIP_LABELS[contact.relationship as keyof typeof RELATIONSHIP_LABELS] ??
-                contact.relationship}
+              {labels[contact.relationship] ?? contact.relationship}
             </span>
             <WarmthBadge
               warmth={computeWarmth(contact.warmth, contact.lastContactedAt, contact.createdAt)}
@@ -249,20 +256,19 @@ export default function ContactDetail({
         <div className="card flex min-h-0 flex-col bg-orbit-bg/50 p-3">
           <div className="mb-2 flex items-center justify-between">
             <div className="label">Notes</div>
-            <button
-              className="btn-ghost"
-              onClick={saveNotes}
-              disabled={savingNotes || notes === (contact.notes ?? "")}
-            >
-              {savingNotes ? "Saving..." : "Save"}
-            </button>
+            <span className={`text-[10px] transition-opacity duration-300 ${
+              saveStatus === "saving" ? "text-slate-500 opacity-100" :
+              saveStatus === "saved" ? "text-emerald-500 opacity-100" :
+              "opacity-0"
+            }`}>
+              {saveStatus === "saving" ? "Saving…" : "Saved"}
+            </span>
           </div>
           <textarea
             className="input flex-1 resize-none"
             placeholder="Context, topics to follow up on, gift ideas, etc."
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            onBlur={saveNotes}
+            onChange={(e) => handleNotesChange(e.target.value)}
           />
         </div>
 

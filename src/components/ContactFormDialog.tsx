@@ -6,11 +6,12 @@ import type { Contact } from "@/lib/types";
 
 interface Props {
   contact: Contact | null;
+  labels: Record<string, string>;
   onSave: (c: Partial<Contact> & { id?: string }) => void;
   onClose: () => void;
 }
 
-export default function ContactFormDialog({ contact, onSave, onClose }: Props) {
+export default function ContactFormDialog({ contact, labels, onSave, onClose }: Props) {
   const [form, setForm] = useState<Partial<Contact>>({
     name: "",
     email: "",
@@ -95,7 +96,7 @@ export default function ContactFormDialog({ contact, onSave, onClose }: Props) {
             >
               {RELATIONSHIPS.map((r) => (
                 <option key={r} value={r}>
-                  {RELATIONSHIP_LABELS[r]}
+                  {labels[r] ?? RELATIONSHIP_LABELS[r]}
                 </option>
               ))}
             </select>

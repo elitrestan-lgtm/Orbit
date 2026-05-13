@@ -16,6 +16,7 @@ interface Props {
   filter: string;
   onFilter: (f: string) => void;
   nudgeWindows: NudgeWindows;
+  labels: Record<string, string>;
 }
 
 export default function ContactList({
@@ -28,6 +29,7 @@ export default function ContactList({
   filter,
   onFilter,
   nudgeWindows,
+  labels,
 }: Props) {
   return (
     <div className="card flex h-full flex-col overflow-hidden">
@@ -52,7 +54,7 @@ export default function ContactList({
               active={filter === r}
               onClick={() => onFilter(r)}
               count={allContacts.filter((c) => c.relationship === r).length}
-              label={RELATIONSHIP_LABELS[r]}
+              label={labels[r] ?? RELATIONSHIP_LABELS[r]}
             />
           ))}
         </div>
@@ -97,7 +99,7 @@ export default function ContactList({
                     <div className="truncate text-[11px] text-slate-500">
                       {[c.role, c.company].filter(Boolean).join(" · ") || "—"}
                     </div>
-                    <NudgeDot status={nudge.status} />
+                    <NudgeBadge status={nudge.status} />
                   </div>
                 </div>
               </button>
@@ -165,18 +167,24 @@ function Avatar({ name }: { name: string }) {
   );
 }
 
-function NudgeDot({ status }: { status: string }) {
-  const { color, label } =
-    status === "overdue"
-      ? { color: "bg-orange-400", label: "Overdue" }
-      : status === "due"
-        ? { color: "bg-amber-400", label: "Due soon" }
-        : status === "never"
-          ? { color: "bg-slate-600", label: "No contact yet" }
-          : { color: "bg-emerald-400", label: "Fresh" };
+function NudgeBadge({ status }: { status: string }) {
+  if (status === "overdue") {
+    return (
+      <span className="shrink-0 rounded-full bg-orange-500/15 px-1.5 py-0.5 text-[10px] font-medium text-orange-400">
+        Overdue
+      </span>
+    );
+  }
+  if (status === "due") {
+    return (
+      <span className="shrink-0 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-400">
+        Due soon
+      </span>
+    );
+  }
   return (
-    <span className="flex items-center gap-1" title={label}>
-      <span className={`h-1.5 w-1.5 rounded-full ${color}`} />
+    <span className="flex items-center">
+      <span className={`h-1.5 w-1.5 rounded-full ${status === "never" ? "bg-slate-600" : "bg-emerald-500"}`} />
     </span>
   );
 }

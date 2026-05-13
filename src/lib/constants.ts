@@ -18,10 +18,10 @@ export const RELATIONSHIP_LABELS: Record<Relationship, string> = {
 
 export const DEFAULT_NUDGE_WINDOWS: Record<Relationship, number> = {
   mentor: 30,
-  advisor: 45,
-  collaborator: 21,
-  peer: 60,
-  friend: 90,
+  advisor: 30,
+  collaborator: 30,
+  peer: 30,
+  friend: 30,
 };
 
 export const INTERACTION_KINDS = [

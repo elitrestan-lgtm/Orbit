@@ -8,8 +8,8 @@ interface Props {
   onNudgeChange: (relationship: string, days: number) => void;
   integrations: IntegrationStatus;
   onConnect: (provider: "gmail" | "linkedin") => void;
-  totalContacts: number;
-  overdueCount: number;
+  labels: Record<string, string>;
+  onLabelChange: (relationship: string, label: string) => void;
 }
 
 export default function SettingsPanel({
@@ -17,16 +17,30 @@ export default function SettingsPanel({
   onNudgeChange,
   integrations,
   onConnect,
-  totalContacts,
-  overdueCount,
+  labels,
+  onLabelChange,
 }: Props) {
   return (
-    <div className="flex h-full flex-col gap-3">
+    <div className="flex h-full flex-col gap-3 overflow-y-auto">
       <section className="card p-4">
-        <div className="label mb-3">Overview</div>
-        <div className="grid grid-cols-2 gap-2">
-          <Stat label="Contacts" value={totalContacts} />
-          <Stat label="Overdue" value={overdueCount} tone={overdueCount > 0 ? "warm" : "ok"} />
+        <div className="label mb-1">Labels</div>
+        <p className="mb-3 text-[11px] text-slate-500">
+          Rename relationship types to match how you think about your network.
+        </p>
+        <div className="space-y-2">
+          {RELATIONSHIPS.map((r) => (
+            <div key={r} className="flex items-center gap-2">
+              <span className="w-4 text-center text-xs text-slate-600">
+                {RELATIONSHIP_LABELS[r][0]}
+              </span>
+              <input
+                className="input h-8 flex-1 text-xs"
+                value={labels[r] ?? RELATIONSHIP_LABELS[r]}
+                onChange={(e) => onLabelChange(r, e.target.value)}
+                placeholder={RELATIONSHIP_LABELS[r]}
+              />
+            </div>
+          ))}
         </div>
       </section>
 
@@ -38,8 +52,8 @@ export default function SettingsPanel({
         <div className="space-y-2.5">
           {RELATIONSHIPS.map((r) => (
             <div key={r} className="flex items-center gap-2">
-              <label className="w-24 text-xs text-slate-300">
-                {RELATIONSHIP_LABELS[r]}
+              <label className="w-24 truncate text-xs text-slate-300">
+                {labels[r] ?? RELATIONSHIP_LABELS[r]}
               </label>
               <input
                 type="number"
@@ -80,17 +94,6 @@ export default function SettingsPanel({
           OAuth is stubbed — add credentials in <code className="font-mono">.env</code> to activate.
         </p>
       </section>
-    </div>
-  );
-}
-
-function Stat({ label, value, tone = "ok" }: { label: string; value: number; tone?: "ok" | "warm" }) {
-  return (
-    <div className="rounded-lg border border-white/[0.06] bg-black/20 px-3 py-2.5">
-      <div className="text-[10px] text-slate-500">{label}</div>
-      <div className={`mt-0.5 text-xl font-semibold tabular-nums ${tone === "warm" ? "text-orange-400" : "text-white"}`}>
-        {value}
-      </div>
     </div>
   );
 }
